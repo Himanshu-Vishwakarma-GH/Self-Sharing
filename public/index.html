@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Send Files to Himanshu</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      text-align: center;
+    }
+    .drop-zone {
+      border: 2px dashed #ccc;
+      padding: 50px;
+      margin: 20px auto;
+      width: 400px;
+      background-color: #f9f9f9;
+      cursor: pointer;
+    }
+    .drop-zone.dragover {
+      background-color: #e0ffe0;
+      border-color: green;
+    }
+    input[type="file"] {
+      display: none;
+    }
+
+    #fileList {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: left;
+  padding-left: 0;
+  list-style: none;
+}
+#fileList li {
+  border-bottom: 1px solid #ccc;
+}
+#fileList button {
+  background: none;
+  border: none;
+  color: red;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <h2>Send Files to Himanshu</h2>
+
+  <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+    <div class="drop-zone" id="dropZone">Drag & Drop Files Here or Click to Select</div>
+    <input type="file" id="fileInput" name="files" multiple>
+    <br><br>
+    <button type="submit">Send Files to Himanshu</button>
+  </form>
+  <ul id="fileList"></ul>
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+  
+    let selectedFiles = [];
+  
+    dropZone.addEventListener('click', () => fileInput.click());
+  
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+  
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+  
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      addFiles(e.dataTransfer.files);
+    });
+  
+    fileInput.addEventListener('change', () => {
+      addFiles(fileInput.files);
+    });
+  
+    function addFiles(files) {
+      for (let i = 0; i < files.length; i++) {
+        selectedFiles.push(files[i]);
+      }
+      updateFileList();
+    }
+  
+    function updateFileList() {
+      fileList.innerHTML = '';
+      selectedFiles.forEach((file, index) => {
+        const li = document.createElement('li');
+        li.style.display = 'flex';
+        li.style.alignItems = 'center';
+        li.style.justifyContent = 'space-between';
+        li.style.padding = '6px 0';
+  
+        const fileInfo = document.createElement('span');
+        fileInfo.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+  
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '❌';
+        removeBtn.style.marginLeft = '10px';
+        removeBtn.onclick = () => {
+          selectedFiles.splice(index, 1);
+          updateFileList();
+        };
+  
+        li.appendChild(fileInfo);
+        li.appendChild(removeBtn);
+        fileList.appendChild(li);
+      });
+  
+      // Update input files
+      const dataTransfer = new DataTransfer();
+      selectedFiles.forEach(file => dataTransfer.items.add(file));
+      fileInput.files = dataTransfer.files;
+    }
+  </script>
+  
+  
+
+</body>
+</html>
